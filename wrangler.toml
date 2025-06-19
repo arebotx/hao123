@@ -1,0 +1,86 @@
+# Cloudflare Workers 配置文件
+# 详细配置说明请参考: docs/DEPLOYMENT.md
+
+name = "hao123"
+main = "./dist/_worker.js/index.js"
+compatibility_date = "2025-06-19"
+compatibility_flags = ["nodejs_compat"]
+
+# 资源限制配置
+[limits]
+cpu_ms = 50  # CPU 时间限制 (毫秒)
+
+# KV 命名空间绑定 - 书签数据存储
+[[kv_namespaces]]
+binding = "BOOKMARKS_KV"
+id = "9ea23a30da984ad6bbfcab6817c949b2"  # 运行 npm run setup 自动创建
+preview_id = "your_bookmarks_kv_preview_id"  # 预览环境 KV
+
+# SESSION KV 绑定 - Astro 会话管理
+[[kv_namespaces]]
+binding = "SESSION"
+id = "5e3397e0786a4bd08d523ebb971ed024"  # 运行 npm run setup 自动创建
+preview_id = "your_session_kv_preview_id"  # 预览环境 KV
+
+# 环境变量配置
+[vars]
+# 管理功能开关
+ENABLE_ADMIN = "true"
+# 数据源模式: "static" 或 "kv"
+DATA_SOURCE = "kv"
+# 网站基础信息
+SITE_NAME = "Cloudnav 导航站"
+SITE_DESCRIPTION = "智能化的个人导航站，支持书签管理、AI 分类和数据统计"
+
+# 开发环境配置
+[env.development]
+[env.development.vars]
+ENABLE_ADMIN = "true"
+DATA_SOURCE = "static"  # 开发环境使用静态数据
+DEBUG = "true"
+
+# 生产环境配置
+[env.production]
+[env.production.vars]
+ENABLE_ADMIN = "false"  # 生产环境默认关闭管理功能
+DATA_SOURCE = "kv"
+# 生产环境安全配置
+PUBLIC_ADMIN_PASSWORD_HASH = ""  # 管理员密码哈希，运行 npm run setup 生成
+GEMINI_API_KEY = ""  # Gemini AI API 密钥（可选）
+
+# 预览环境配置
+[env.preview]
+[env.preview.vars]
+ENABLE_ADMIN = "true"
+DATA_SOURCE = "kv"
+
+# 静态资源配置
+[assets]
+binding = "ASSETS"
+directory = "./dist"
+
+# 路由配置
+[[routes]]
+pattern = "/*"
+zone_name = "your-domain.com"  # 替换为您的域名
+
+# 可观测性配置
+[observability]
+enabled = true
+
+# 构建配置
+[build]
+command = "npm run build"
+cwd = "."
+watch_dir = "src"
+
+# 部署配置
+[deploy]
+compatibility_date = "2025-06-19"
+compatibility_flags = ["nodejs_compat"]
+
+# 性能优化配置
+[miniflare]
+kv_persist = true
+cache_persist = true
+d1_persist = true

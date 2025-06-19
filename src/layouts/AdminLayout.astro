@@ -1,0 +1,383 @@
+---
+/**
+ * 管理页面布局
+ * 专门为后台管理功能设计的布局，包含认证保护和管理界面
+ * @author Claude 4.0 sonnet
+ * @version 1.0.0
+ */
+
+import '../styles/global.css';
+import { SEO } from 'astro-seo';
+
+// 管理页面的 SEO 配置
+export const adminSiteTitle = "Cloudnav 后台管理 - 书签管理系统";
+export const adminSiteDescription = "Cloudnav 导航站后台管理系统，支持书签管理、分类整理、AI 智能分类、数据统计等功能。";
+export const adminSiteKeywords = "后台管理, 书签管理, 导航管理, AI分类, 数据统计, Cloudnav";
+
+export interface Props {
+  title?: string;
+  description?: string;
+  noAuth?: boolean; // 是否跳过认证
+}
+
+const {
+  title = adminSiteTitle,
+  description = adminSiteDescription,
+  noAuth = false
+} = Astro.props;
+
+// 构建基础 URL
+let baseSiteURL: string;
+if (Astro.site) {
+  const siteStr = Astro.site.toString();
+  baseSiteURL = siteStr.endsWith('/') ? siteStr.slice(0, -1) : siteStr;
+} else {
+  if (import.meta.env.PROD) {
+    console.error("错误：'site' 未在 astro.config.mjs 中配置。");
+    throw new Error("'site' 配置缺失于 astro.config.mjs。");
+  } else {
+    const originStr = Astro.url.origin.toString();
+    baseSiteURL = originStr.endsWith('/') ? originStr.slice(0, -1) : originStr;
+  }
+}
+
+const defaultOgImage = new URL('/images/admin-og.png', baseSiteURL).href;
+const canonicalURL = new URL(Astro.url.pathname, baseSiteURL).href;
+---
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    
+    <!-- SEO 配置 -->
+    <SEO
+      title={title}
+      description={description}
+      canonical={canonicalURL}
+      openGraph={{
+        basic: {
+          title: title,
+          type: 'website',
+          image: defaultOgImage,
+          url: canonicalURL,
+        },
+      }}
+      twitter={{
+        card: 'summary',
+        title: title,
+        description: description,
+        image: defaultOgImage,
+      }}
+      extend={{
+        meta: [
+          { name: 'keywords', content: adminSiteKeywords },
+          { name: 'robots', content: 'noindex, nofollow' }, // 管理页面不被搜索引擎索引
+        ],
+      }}
+    />
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-status-bar-style" content="black-translucent" />
+    <meta name="application-name" content="Cloudnav 管理" />
+    <meta name="format-detection" content="telephone=no" />
+    
+    <!-- 主题脚本 -->
+    <script is:inline>
+      (function() {
+        const THEME_STORAGE_KEY = 'zywe-theme-preference';
+        const ThemeMode = {
+          SYSTEM: 'system',
+          DARK: 'dark',
+          LIGHT: 'light'
+        };
+        
+        function getSystemThemePreference() {
+          return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        }
+        
+        function getCachedThemePreference() {
+          try {
+            const themeData = localStorage.getItem(THEME_STORAGE_KEY);
+            if (!themeData) return null;
+            const data = JSON.parse(themeData);
+            return { mode: data.mode };
+          } catch (error) {
+            return null;
+          }
+        }
+        
+        function applyThemeImmediately() {
+          const cachedPreference = getCachedThemePreference();
+          let themeMode = ThemeMode.SYSTEM;
+          
+          if (cachedPreference) {
+            themeMode = cachedPreference.mode;
+          }
+          
+          if (themeMode === ThemeMode.SYSTEM) {
+            if (getSystemThemePreference()) {
+              document.documentElement.classList.add('dark');
+            } else {
+              document.documentElement.classList.remove('dark');
+            }
+          } else if (themeMode === ThemeMode.DARK) {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        }
+        
+        applyThemeImmediately();
+      })();
+    </script>
+    
+    <!-- 图标 -->
+    <link rel="icon" type="image/svg+xml" href="/images/logo.svg" />
+    
+    <!-- 管理页面专用样式 */
+    <style>
+      /* 管理页面全局样式 */
+      .admin-layout {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      }
+      
+      .dark .admin-layout {
+        background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+      }
+      
+      /* 滚动条样式 */
+      .admin-scrollbar {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+      }
+      
+      .admin-scrollbar::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      
+      .admin-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      
+      .admin-scrollbar::-webkit-scrollbar-thumb {
+        background-color: rgba(156, 163, 175, 0.5);
+        border-radius: 4px;
+      }
+      
+      .admin-scrollbar::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(156, 163, 175, 0.7);
+      }
+      
+      .dark .admin-scrollbar {
+        scrollbar-color: rgba(156, 163, 175, 0.3) transparent;
+      }
+      
+      .dark .admin-scrollbar::-webkit-scrollbar-thumb {
+        background-color: rgba(156, 163, 175, 0.3);
+      }
+      
+      .dark .admin-scrollbar::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(156, 163, 175, 0.5);
+      }
+      
+      /* 动画效果 */
+      .animate-wave {
+        animation: wave 1.4s ease-in-out infinite;
+      }
+      
+      @keyframes wave {
+        0%, 60%, 100% {
+          transform: initial;
+        }
+        30% {
+          transform: translateY(-10px);
+        }
+      }
+      
+      /* 卡片阴影效果 */
+      .admin-card {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      }
+      
+      .dark .admin-card {
+        background: rgba(45, 55, 72, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      }
+      
+      /* 按钮样式 */
+      .admin-btn {
+        transition: all 0.2s ease-in-out;
+        transform: translateY(0);
+      }
+      
+      .admin-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+      
+      .admin-btn:active {
+        transform: translateY(0);
+      }
+      
+      /* 响应式设计 */
+      @media (max-width: 768px) {
+        .admin-layout {
+          padding: 1rem;
+        }
+      }
+      
+      /* 加载动画 */
+      .loading-spinner {
+        animation: spin 1s linear infinite;
+      }
+      
+      @keyframes spin {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      
+      /* 渐入动画 */
+      .fade-in {
+        animation: fadeIn 0.5s ease-in-out;
+      }
+      
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+      /* 成功/错误状态样式 */
+      .status-success {
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        border-color: #b8dacc;
+        color: #155724;
+      }
+      
+      .status-error {
+        background: linear-gradient(135deg, #f8d7da 0%, #f1b0b7 100%);
+        border-color: #f1b0b7;
+        color: #721c24;
+      }
+      
+      .dark .status-success {
+        background: linear-gradient(135deg, #1e3a2e 0%, #2d5a3d 100%);
+        border-color: #2d5a3d;
+        color: #a3cfbb;
+      }
+      
+      .dark .status-error {
+        background: linear-gradient(135deg, #3a1e1e 0%, #5a2d2d 100%);
+        border-color: #5a2d2d;
+        color: #cfb3a3;
+      }
+    </style>
+  </head>
+  
+  <body class="admin-layout admin-scrollbar">
+    <!-- 页面内容 -->
+    <div id="admin-content" class="fade-in">
+      <slot />
+    </div>
+    
+    <!-- 主题切换组件 -->
+    <div id="admin-theme-toggle" class="fixed bottom-4 left-4 z-50">
+      <button
+        onclick="window.toggleTheme && window.toggleTheme()"
+        class="admin-btn bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 p-3 rounded-full shadow-lg hover:shadow-xl border border-gray-200 dark:border-gray-600"
+        title="切换主题"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 block dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        </svg>
+      </button>
+    </div>
+    
+    <!-- 主题切换脚本 -->
+    <script>
+      // 主题切换功能
+      window.toggleTheme = function() {
+        const THEME_STORAGE_KEY = 'zywe-theme-preference';
+        const ThemeMode = {
+          SYSTEM: 'system',
+          DARK: 'dark',
+          LIGHT: 'light'
+        };
+        
+        function getCurrentTheme() {
+          try {
+            const themeData = localStorage.getItem(THEME_STORAGE_KEY);
+            if (!themeData) return ThemeMode.SYSTEM;
+            const data = JSON.parse(themeData);
+            return data.mode || ThemeMode.SYSTEM;
+          } catch (error) {
+            return ThemeMode.SYSTEM;
+          }
+        }
+        
+        function setTheme(mode) {
+          try {
+            localStorage.setItem(THEME_STORAGE_KEY, JSON.stringify({ mode }));
+            
+            if (mode === ThemeMode.SYSTEM) {
+              const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+              if (prefersDark) {
+                document.documentElement.classList.add('dark');
+              } else {
+                document.documentElement.classList.remove('dark');
+              }
+            } else if (mode === ThemeMode.DARK) {
+              document.documentElement.classList.add('dark');
+            } else {
+              document.documentElement.classList.remove('dark');
+            }
+          } catch (error) {
+            console.error('设置主题失败:', error);
+          }
+        }
+        
+        // 循环切换主题
+        const currentTheme = getCurrentTheme();
+        let nextTheme;
+        
+        switch (currentTheme) {
+          case ThemeMode.SYSTEM:
+            nextTheme = ThemeMode.LIGHT;
+            break;
+          case ThemeMode.LIGHT:
+            nextTheme = ThemeMode.DARK;
+            break;
+          case ThemeMode.DARK:
+            nextTheme = ThemeMode.SYSTEM;
+            break;
+          default:
+            nextTheme = ThemeMode.SYSTEM;
+        }
+        
+        setTheme(nextTheme);
+      };
+    </script>
+  </body>
+</html>

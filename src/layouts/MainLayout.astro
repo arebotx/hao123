@@ -1,0 +1,188 @@
+---
+import '../styles/global.css';
+import ThemeIsland from '../Island/ThemeIsland.jsx';
+import QuicklyUpButton from '../Island/quicklyup.jsx';
+import { SEO } from 'astro-seo';
+                        // 定义并导出标准的网站标题、描述和关键词
+export const siteTitle = "Zywe导航 - 开源、自部署的私人化书签首页，打造专属你的极简导航站";
+export const siteDescription = "免费开源的个人导航站模板，轻量部署、自动化更新，支持个性化定制，快速访问你的常用工具、书签和在线服务。适合开发者、极客、内容创作者和自托管爱好者。";
+export const siteKeywords = "导航站, 个人导航, 收藏夹, 自部署书签, 开源导航, 轻量工具, 开发者工具, 自托管, 极简首页, 书签管理, 在线工具, 自定义导航, Zywe";
+export interface Props {
+  title?: string;       
+  description?: string; 
+  ogImage?: string;     
+  canonicalURL?: string; 
+}
+const {
+  title = siteTitle, 
+  description = siteDescription, 
+  ogImage, 
+  canonicalURL: pageCanonicalURL, 
+} = Astro.props;
+let baseSiteURL: string;
+if (Astro.site) {
+  const siteStr = Astro.site.toString();
+  baseSiteURL = siteStr.endsWith('/') ? siteStr.slice(0, -1) : siteStr;
+} else {
+  if (import.meta.env.PROD) {
+    console.error("错误：'site' 未在 astro.config.mjs 中配置。这将导致SEO的绝对URL不正确。");
+    throw new Error("'site' 配置缺失于 astro.config.mjs。生产构建需要此配置以生成正确的绝对URL。");
+  } else {
+    console.warn("警告：'site' 未在 astro.config.mjs 中配置。现为本地开发使用 Astro.url.origin。请设置 'site' 以确保生产构建时绝对URL的正确性。");
+    const originStr = Astro.url.origin.toString();
+    baseSiteURL = originStr.endsWith('/') ? originStr.slice(0, -1) : originStr;
+  }
+}
+const defaultOgImage = new URL('/images/logo.png', baseSiteURL).href; //想更改OG图片文件名/路径，同步修改这里
+const canonicalURL = new URL(Astro.url.pathname, baseSiteURL).href;
+---
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <SEO
+      title={title}
+      description={description}
+      canonical={canonicalURL}
+      openGraph={{
+        basic: {
+          title: title,
+          type: 'website',
+          image: ogImage || defaultOgImage,
+          url: canonicalURL,
+        },
+      }}
+      twitter={{
+        card: 'summary', 
+        title: title,
+        description: description,
+        image: ogImage || defaultOgImage,
+      }}
+      extend={{
+        meta: [
+          { name: 'keywords', content: siteKeywords },
+        ],
+      }}
+    />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-status-bar-style" content="black-translucent" />
+    <meta name="application-name" content="导航站" />
+    <meta name="format-detection" content="telephone=no" />
+    <script is:inline>
+      (function() {
+        const THEME_STORAGE_KEY = 'zywe-theme-preference';
+        const ThemeMode = {
+          SYSTEM: 'system',
+          DARK: 'dark',
+          LIGHT: 'light'
+        };
+        function getSystemThemePreference() {
+          return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        }
+        function getCachedThemePreference() {
+          try {
+            const themeData = localStorage.getItem(THEME_STORAGE_KEY);
+            if (!themeData) return null;
+            const data = JSON.parse(themeData);
+            return { mode: data.mode };
+          } catch (error) {
+            return null;
+          }
+        }
+        function applyThemeImmediately() {
+          const cachedPreference = getCachedThemePreference();
+          let themeMode = ThemeMode.SYSTEM;
+          if (cachedPreference) {
+            themeMode = cachedPreference.mode;
+          }
+          if (themeMode === ThemeMode.SYSTEM) {
+            if (getSystemThemePreference()) {
+              document.documentElement.classList.add('dark');
+            } else {
+              document.documentElement.classList.remove('dark');
+            }
+          } else if (themeMode === ThemeMode.DARK) {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        }
+        applyThemeImmediately();
+      })();
+    </script>
+    </script>
+    <!-- 图标 -->
+    <link rel="icon" type="image/svg+xml" href="/images/logo.svg" />
+    {[
+      'api.myip.la',
+      'myip.ipip.net',
+      'nominatim.openstreetmap.org',
+      'api.openweathermap.org',
+      'api.open-meteo.com'
+    ].map(domain => (
+      <>
+        <link rel="dns-prefetch" href={`//${domain}`} />
+        <link rel="preconnect" href={`https://${domain}`} crossorigin />
+      </>
+    ))}
+    <style>
+      @media (max-width: 768px) {
+        aside {
+          overflow-y: auto;
+          max-height: calc(100vh - 60px);
+          scrollbar-width: thin;
+          scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+        }
+        aside::-webkit-scrollbar {
+          width: 6px;
+        }
+        aside::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        aside::-webkit-scrollbar-thumb {
+          background-color: rgba(156, 163, 175, 0.5);
+          border-radius: 20px;
+        }
+        aside::-webkit-scrollbar-thumb:hover {
+          background-color: rgba(156, 163, 175, 0.7);
+        }
+      }
+      @media (min-width: 1024px) {
+        aside {
+          scrollbar-width: thin;
+          scrollbar-color: rgba(156, 163, 175, 0.5) transparent; 
+        }
+        aside::-webkit-scrollbar {
+          width: 6px;
+        }
+        aside::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        aside::-webkit-scrollbar-thumb {
+          background-color: rgba(156, 163, 175, 0.5); 
+          border-radius: 20px;
+        }
+        aside::-webkit-scrollbar-thumb:hover {
+          background-color: rgba(156, 163, 175, 0.7); 
+        }
+      }
+      .dark aside {
+        scrollbar-color: rgba(156, 163, 175, 0.3) transparent;
+      }
+      .dark aside::-webkit-scrollbar-thumb {
+        background-color: rgba(156, 163, 175, 0.3);
+      }
+      .dark aside::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(156, 163, 175, 0.5);
+      }
+    </style>
+  </head>
+  <body>
+    <slot />
+    <ThemeIsland client:load />
+    <QuicklyUpButton client:visible />
+  </body>
+</html>

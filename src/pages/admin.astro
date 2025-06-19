@@ -1,0 +1,311 @@
+---
+/**
+ * 管理页面
+ * 后台管理系统的主入口页面，集成所有管理功能
+ * @author Claude 4.0 sonnet
+ * @version 1.0.0
+ */
+
+import AdminLayout from '../layouts/AdminLayout.astro';
+import AuthIsland from '../Island/AuthIsland.jsx';
+import AdminIsland from '../Island/AdminIsland.jsx';
+import BookmarkManagerIsland from '../Island/BookmarkManagerIsland.jsx';
+import CategoryManagerIsland from '../Island/CategoryManagerIsland.jsx';
+import ImportExportIsland from '../Island/ImportExportIsland.jsx';
+import AIOrganizeIsland from '../Island/AIOrganizeIsland.jsx';
+import StatsIsland from '../Island/StatsIsland.jsx';
+import AdvancedStatsIsland from '../Island/AdvancedStatsIsland.jsx';
+import UIEnhancementIsland from '../Island/UIEnhancementIsland.jsx';
+
+// 页面元数据
+const pageTitle = "Cloudnav 后台管理";
+const pageDescription = "Cloudnav 导航站后台管理系统，提供书签管理、分类整理、AI 智能分类、数据统计等功能。";
+---
+
+<AdminLayout title={pageTitle} description={pageDescription}>
+  <!-- 认证保护的管理界面 -->
+  <AuthIsland client:load>
+    <!-- 主管理界面 -->
+    <div id="admin-main" class="min-h-screen">
+      <!-- 管理导航和内容 -->
+      <AdminIsland client:load />
+      
+      <!-- 隐藏的管理组件，通过 AdminIsland 控制显示 -->
+      <div style="display: none;">
+        <!-- 书签管理组件 -->
+        <div id="bookmark-manager">
+          <BookmarkManagerIsland client:visible />
+        </div>
+        
+        <!-- 分类管理组件 -->
+        <div id="category-manager">
+          <CategoryManagerIsland client:visible />
+        </div>
+        
+        <!-- 导入导出组件 -->
+        <div id="import-export">
+          <ImportExportIsland client:visible />
+        </div>
+        
+        <!-- AI 整理组件 -->
+        <div id="ai-organize">
+          <AIOrganizeIsland client:visible />
+        </div>
+        
+        <!-- 统计分析组件 */
+        <div id="stats">
+          <StatsIsland client:visible />
+        </div>
+        
+        <!-- 高级统计组件 -->
+        <div id="advanced-stats">
+          <AdvancedStatsIsland client:visible />
+        </div>
+      </div>
+    </div>
+
+    <!-- UI 增强功能 -->
+    <UIEnhancementIsland client:load />
+  </AuthIsland>
+</AdminLayout>
+
+<script>
+  // 管理页面的客户端脚本
+  document.addEventListener('DOMContentLoaded', () => {
+    console.log('🔧 管理页面已加载');
+    
+    // 页面访问统计
+    if (typeof window !== 'undefined' && window.stats) {
+      window.stats.pageView('/admin');
+    }
+    
+    // 管理页面特定的功能
+    initAdminPage();
+  });
+  
+  /**
+   * 初始化管理页面
+   */
+  function initAdminPage() {
+    // 设置页面标题
+    document.title = 'Cloudnav 后台管理';
+    
+    // 添加管理页面的键盘快捷键
+    document.addEventListener('keydown', handleKeyboardShortcuts);
+    
+    // 监听页面可见性变化
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    // 设置页面离开确认
+    window.addEventListener('beforeunload', handleBeforeUnload);
+  }
+  
+  /**
+   * 处理键盘快捷键
+   */
+  function handleKeyboardShortcuts(event) {
+    // Ctrl/Cmd + K: 快速搜索
+    if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
+      event.preventDefault();
+      // 触发搜索功能
+      console.log('快捷键：快速搜索');
+    }
+    
+    // Ctrl/Cmd + S: 保存当前操作
+    if ((event.ctrlKey || event.metaKey) && event.key === 's') {
+      event.preventDefault();
+      // 触发保存功能
+      console.log('快捷键：保存操作');
+    }
+    
+    // Esc: 关闭模态框或返回
+    if (event.key === 'Escape') {
+      // 处理 Esc 键逻辑
+      console.log('快捷键：Esc');
+    }
+  }
+  
+  /**
+   * 处理页面可见性变化
+   */
+  function handleVisibilityChange() {
+    if (document.hidden) {
+      console.log('管理页面已隐藏');
+    } else {
+      console.log('管理页面已显示');
+      // 页面重新显示时刷新数据
+      refreshAdminData();
+    }
+  }
+  
+  /**
+   * 处理页面离开前的确认
+   */
+  function handleBeforeUnload(event) {
+    // 检查是否有未保存的更改
+    const hasUnsavedChanges = checkUnsavedChanges();
+    
+    if (hasUnsavedChanges) {
+      event.preventDefault();
+      event.returnValue = '您有未保存的更改，确定要离开吗？';
+      return event.returnValue;
+    }
+  }
+  
+  /**
+   * 检查是否有未保存的更改
+   */
+  function checkUnsavedChanges() {
+    // 这里可以检查各个管理组件的状态
+    // 暂时返回 false
+    return false;
+  }
+  
+  /**
+   * 刷新管理数据
+   */
+  function refreshAdminData() {
+    // 触发各个组件的数据刷新
+    console.log('刷新管理数据');
+  }
+  
+  // 全局错误处理
+  window.addEventListener('error', (event) => {
+    console.error('管理页面错误:', event.error);
+    // 可以在这里添加错误上报逻辑
+  });
+  
+  // 未处理的 Promise 拒绝
+  window.addEventListener('unhandledrejection', (event) => {
+    console.error('未处理的 Promise 拒绝:', event.reason);
+    // 可以在这里添加错误上报逻辑
+  });
+</script>
+
+<style>
+  /* 管理页面特定样式 */
+  #admin-main {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    min-height: 100vh;
+  }
+  
+  .dark #admin-main {
+    background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+  }
+  
+  /* 组件容器样式 */
+  #admin-main > div {
+    transition: all 0.3s ease-in-out;
+  }
+  
+  /* 响应式设计 */
+  @media (max-width: 768px) {
+    #admin-main {
+      padding: 0.5rem;
+    }
+  }
+  
+  /* 加载状态样式 */
+  .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+  }
+  
+  .dark .loading-overlay {
+    background: rgba(26, 32, 44, 0.9);
+  }
+  
+  /* 管理组件的通用样式 */
+  .admin-component {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .dark .admin-component {
+    background: rgba(45, 55, 72, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  }
+  
+  /* 动画效果 */
+  .slide-in {
+    animation: slideIn 0.3s ease-out;
+  }
+  
+  @keyframes slideIn {
+    from {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  .fade-in-up {
+    animation: fadeInUp 0.5s ease-out;
+  }
+  
+  @keyframes fadeInUp {
+    from {
+      transform: translateY(30px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  /* 成功/错误提示样式 */
+  .notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 500;
+    z-index: 10000;
+    animation: slideInRight 0.3s ease-out;
+  }
+  
+  .notification.success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  }
+  
+  .notification.error {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  }
+  
+  .notification.warning {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  }
+  
+  .notification.info {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  }
+  
+  @keyframes slideInRight {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+</style>

@@ -1,0 +1,77 @@
+{
+  "name": "hao123",
+  "type": "module",
+  "version": "2.0.0",
+  "packageManager": "pnpm@10.12.1",
+  "description": "智能化个人导航站 - 支持在线管理、AI 分类、数据统计的现代化书签管理系统",
+  "keywords": [
+    "astro",
+    "navigation",
+    "bookmarks",
+    "ai",
+    "cloudflare",
+    "react",
+    "tailwind",
+    "management",
+    "statistics"
+  ],
+  "author": "arebotx",
+  "license": "MIT",
+  "homepage": "https://github.com/arebotx/CloudNav",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/arebotx/CloudNav.git"
+  },
+  "bugs": {
+    "url": "https://github.com/arebotx/CloudNav/issues"
+  },
+  "scripts": {
+    "astro": "astro",
+    "build": "astro build",
+    "dev": "astro dev",
+    "preview": "astro preview",
+    "sync": "astro sync",
+    "setup": "node scripts/setup.js",
+    "deploy": "node scripts/deploy.js",
+    "deploy:pages": "wrangler pages deploy dist",
+    "deploy:workers": "wrangler deploy",
+    "wrangler": "wrangler",
+    "icons": "npx tsx ./icon-system/0icon.ts",
+    "test": "echo \"No tests specified\" && exit 0",
+    "lint": "echo \"No linting configured\" && exit 0",
+    "format": "echo \"No formatting configured\" && exit 0"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "^12.1.0",
+    "@astrojs/react": "^4.3.0",
+    "@astrojs/sitemap": "^3.4.0",
+    "@google/generative-ai": "^0.21.0",
+    "astro": "^5.8.1",
+    "astro-seo": "^0.8.4",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@astrojs/tailwind": "^6.0.2",
+    "@types/jsdom": "^21.1.7",
+    "@types/react": "^19.1.5",
+    "@types/react-dom": "^19.1.5",
+    "autoprefixer": "^10.4.21",
+    "chalk": "^5.4.1",
+    "cheerio": "^1.0.0",
+    "p-limit": "^6.2.0",
+    "postcss": "^8.5.3",
+    "sharp": "^0.34.2",
+    "svgo": "^3.3.2",
+    "tailwindcss": "^3.4.17",
+    "terser": "^5.39.2",
+    "tsx": "^4.19.4",
+    "undici": "^7.10.0",
+    "wrangler": "^3.100.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "sharp"
+    ]
+  }
+}

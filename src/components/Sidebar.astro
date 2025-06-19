@@ -1,0 +1,252 @@
+---
+import { categories } from '../data/navLinks.js';
+import WeatherIsland from '../Island/WeatherIsland.jsx'; 
+import ThemeIsland from '../Island/ThemeIsland.jsx';   
+import LogoName from '../components/LogoName.astro';  
+---
+<div id="sidebar" class="fixed top-0 left-0 h-full w-[90%] xs:w-[85%] sm:w-[70%] md:w-[40%] lg:w-[30%] xl:w-1/4 max-w-sm bg-white/95 dark:bg-gray-800/95 backdrop-blur-md shadow-xl z-50 transform -translate-x-full transition-all duration-300 ease-out overflow-hidden border-r border-gray-100 dark:border-gray-700 flex flex-col" style="height: 100vh; height: 100dvh;">
+  <div class="flex-shrink-0 p-3 sm:p-4 flex justify-between items-center border-b border-gray-100 dark:border-gray-700 bg-white/95 dark:bg-gray-800/95">
+    <LogoName />
+    <button
+      id="sidebar-close"
+      class="p-2 text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-200 touch-manipulation"
+      aria-label="关闭侧边栏"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+  <div id="sidebar-content" class="flex-1 overflow-y-auto flex flex-col px-3 sm:px-4 py-4" style="scrollbar-width: none; -ms-overflow-style: none;">
+    <WeatherIsland client:visible />
+    <ThemeIsland client:load />
+    <div class="mb-6">
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="text-base sm:text-lg font-medium text-gray-800 dark:text-white">分类导航</h3>
+        <button id="toggle-categories" class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200 touch-manipulation" aria-label="折叠或展开分类列表">
+          <svg id="category-toggle-icon" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5 text-gray-600 dark:text-gray-400 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+      </div>
+      <div id="categories-container" class="overflow-hidden" style="transition:max-height 0.3s ease-in-out; max-height:0;">
+        <div id="sidebar-categories" class="space-y-1 py-2">
+          {categories.map(category => (
+            <a href={`#${category.id}`} class="sidebar-category-link flex items-center px-3 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all duration-200 touch-manipulation">
+              <div class="w-6 h-6 mr-3 flex items-center justify-center flex-shrink-0">
+                <img src={category.icon} alt={`${category.name} 图标`} class="w-5 h-5" width="20" height="20" />
+              </div>
+              <span class="text-sm font-medium">{category.name}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+    <!-- 联系我们按钮,链接记得修改-->
+    <div id="make-website-btn" class="mt-auto" style="padding-top:16px;">
+      <a
+        href="https://t.me/zywe_private_bot"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="w-full px-4 py-3 rounded-xl bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-medium shadow-sm border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 transition-all duration-200 flex items-center justify-center touch-manipulation"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.96 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+        </svg>
+        <span class="text-sm sm:text-base">联系我们</span>
+      </a>
+    </div>
+  </div>
+</div>
+<div id="sidebar-backdrop" class="fixed inset-0 backdrop-blur-sm bg-white/30 dark:bg-black/20 z-40 hidden transition-all duration-300" style="pointer-events: auto;"></div>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebarClose = document.getElementById('sidebar-close');
+    const sidebar = document.getElementById('sidebar');
+    const backdrop = document.getElementById('sidebar-backdrop');
+    sidebarToggle?.addEventListener('click', () => {
+      sidebar?.classList.remove('-translate-x-full');
+      backdrop?.classList.remove('hidden');
+      document.body.classList.add('overflow-hidden');
+      setupCategoryLinks();
+    });
+    const closeSidebar = () => {
+      sidebar?.classList.add('-translate-x-full');
+      backdrop?.classList.add('hidden');
+      document.body.classList.remove('overflow-hidden');
+    };
+    sidebarClose?.addEventListener('click', closeSidebar);
+    backdrop?.addEventListener('click', closeSidebar);
+    let touchStartX = 0;
+    let touchStartY = 0;
+    sidebar?.addEventListener('touchstart', (e) => {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+    sidebar?.addEventListener('touchmove', (e) => {
+      if (!sidebar.classList.contains('-translate-x-full')) {
+        const touchX = e.touches[0].clientX;
+        const touchY = e.touches[0].clientY;
+        const deltaX = touchStartX - touchX;
+        const deltaY = Math.abs(touchStartY - touchY);
+        if (deltaX > 50 && deltaY < 100) {
+          closeSidebar();
+        }
+      }
+    }, { passive: true });
+    function setupCategoryLinks() {
+      const categoryLinks = document.querySelectorAll('.sidebar-category-link');
+      if (categoryLinks.length === 0) {
+        return;
+      }
+      categoryLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const href = link.getAttribute('href');
+          if (!href) return;
+          const id = href.replace('#', '');
+          closeSidebar();
+          setTimeout(() => {
+            const targetSection = document.getElementById(id);
+            if (targetSection) {
+              const headerHeight = 70; 
+              const targetPosition = targetSection.getBoundingClientRect().top + window.pageYOffset - headerHeight;
+              window.scrollTo({
+                top: targetPosition,
+                behavior: 'smooth'
+              });
+            }
+          }, 100); 
+        });
+      });
+    }
+    const toggleCategories = document.getElementById('toggle-categories');
+    const categoriesContainer = document.getElementById('categories-container');
+    const categoryToggleIcon = document.getElementById('category-toggle-icon');
+    toggleCategories?.addEventListener('click', () => {
+      if (categoriesContainer && categoryToggleIcon) {
+        const categoriesList = document.getElementById('sidebar-categories');
+        if (!categoriesList) return;
+        const isExpanded = categoriesContainer.style.maxHeight !== '0px' && categoriesContainer.style.maxHeight !== '';
+        if (isExpanded) {
+          categoriesContainer.style.maxHeight = '0px';
+          categoryToggleIcon.style.transform = 'rotate(0deg)';
+        } else {
+          const totalHeight = categoriesList.scrollHeight;
+          categoriesContainer.style.maxHeight = `${totalHeight}px`;
+          categoryToggleIcon.style.transform = 'rotate(180deg)';
+        }
+      }
+    });
+    const checkUrlForCategory = () => {
+      const hash = window.location.hash;
+      if (hash && hash.startsWith('#')) {
+        if (categoriesContainer && categoryToggleIcon) {
+          const categoriesList = document.getElementById('sidebar-categories');
+          if (categoriesList) {
+            const totalHeight = categoriesList.scrollHeight;
+            categoriesContainer.style.maxHeight = `${totalHeight}px`;
+            categoryToggleIcon.style.transform = 'rotate(180deg)';
+          }
+        }
+      }
+    };
+    setTimeout(checkUrlForCategory, 300);
+    setupCategoryLinks();
+  });
+</script>
+<style>
+  #sidebar {
+    height: 100vh;
+    height: 100dvh; 
+  }
+  #sidebar-content .overflow-y-auto {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+  #sidebar-content .overflow-y-auto::-webkit-scrollbar {
+    width: 0;
+    display: none;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    #sidebar-content .overflow-y-auto:hover::-webkit-scrollbar {
+      width: 4px;
+      display: block;
+    }
+    #sidebar-content .overflow-y-auto:hover::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    #sidebar-content .overflow-y-auto:hover::-webkit-scrollbar-thumb {
+      background-color: rgba(156, 163, 175, 0.5);
+      border-radius: 10px;
+    }
+    .dark #sidebar-content .overflow-y-auto:hover::-webkit-scrollbar-thumb {
+      background-color: rgba(156, 163, 175, 0.3);
+    }
+  }
+  @media (max-width: 768px) {
+    #sidebar {
+      max-width: calc(100vw - 40px);
+    }
+    .touch-manipulation {
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .sidebar-category-link {
+      min-height: 44px; 
+    }
+    #toggle-categories,
+    #sidebar-close {
+      min-width: 44px;
+      min-height: 44px;
+    }
+  }
+  @media (max-width: 375px) {
+    #sidebar {
+      width: 95% !important;
+      max-width: none;
+    }
+  }
+  @media (max-height: 500px) and (orientation: landscape) {
+    #sidebar {
+      height: 100vh;
+      height: 100dvh;
+    }
+    #sidebar-content .overflow-y-auto {
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
+    }
+    #make-website-btn {
+      padding: 0.5rem;
+    }
+  }
+  @supports (padding: max(0px)) {
+    #sidebar {
+      padding-left: max(0px, env(safe-area-inset-left));
+    }
+    #make-website-btn {
+      padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #sidebar,
+    #categories-container,
+    .transition-all,
+    .transition-transform {
+      transition: none !important;
+    }
+  }
+  @media (prefers-contrast: high) {
+    #sidebar {
+      border-width: 2px;
+    }
+    .sidebar-category-link:hover,
+    #toggle-categories:hover,
+    #sidebar-close:hover {
+      outline: 2px solid currentColor;
+    }
+  }
+</style>
